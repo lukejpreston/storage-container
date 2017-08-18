@@ -1,10 +1,25 @@
 export default (state, location) => {
   const pathname = location.pathname
 
+  const number = state.time.number
+
   let time = ''
-  const hours = '00'
-  const minutes = '00'
-  const seconds = '00'
+  let hours = ''
+  let minutes = ''
+  let seconds = ''
+
+  const hoursCount = Math.floor(number / 60 / 60)
+  if (hoursCount < 10) hours = '0' + hoursCount
+  else hours = '' + hoursCount
+
+  const minutesCounts = Math.floor(number / 60) - hoursCount * 60
+  if (minutesCounts < 10) minutes = '0' + minutesCounts
+  else minutes = '' + minutesCounts
+
+  const secondsCount = number - hoursCount * 60 * 60 - minutesCounts * 60
+  if (secondsCount < 10) seconds = '0' + secondsCount
+  else seconds = '' + secondsCount
+
   if (pathname === '') time += `${hours}:${minutes}:${seconds}`
   else {
     if (pathname.includes('hh')) time += hours

@@ -1,7 +1,14 @@
 export default (storageContainer) => {
+  let interval = null
+
   return {
     controls: {
       onStart: () => {
+        interval = setInterval(() => {
+          const number = storageContainer.get().time.number
+          storageContainer.cookie.set('time', {number: number + 1})
+        }, 1000)
+
         storageContainer.set('controls', {
           startDisabled: true,
           stopDisabled: false,
@@ -9,6 +16,7 @@ export default (storageContainer) => {
         })
       },
       onStop: () => {
+        clearInterval(interval)
         storageContainer.set('controls', {
           startDisabled: false,
           stopDisabled: true,
@@ -16,6 +24,12 @@ export default (storageContainer) => {
         })
       },
       onRestart: () => {
+        clearInterval(interval)
+        storageContainer.cookie.set('time', {number: 0})
+        interval = setInterval(() => {
+          const number = storageContainer.get().time.number
+          storageContainer.cookie.set('time', {number: number + 1})
+        }, 1000)
       }
     },
     format: {

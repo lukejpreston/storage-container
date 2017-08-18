@@ -1,8 +1,10 @@
 import clone from 'clone'
 import merge from 'merge'
 import createHistory from 'history/createBrowserHistory'
-// import cookies from 'cookies'
-// import store from 'store'
+import cookies from 'js-cookie'
+import store from 'store'
+
+window.cookies = cookies
 
 export default ({
   onChange,
@@ -35,12 +37,34 @@ export default ({
     reduce()
   }
 
+  const set = (name, data) => {
+    const toMerge = {}
+    toMerge[name] = data
+    state = merge.recursive(true, state, toMerge)
+    reduce()
+  }
+
   const storageContainer = {
-    set: (name, data) => {
-      const toMerge = {}
-      toMerge[name] = data
-      state = merge.recursive(true, state, toMerge)
-      reduce()
+    set,
+    local: {
+      set (name, data) {
+        set(name, data)
+        store.set(name, data)
+      },
+      remove (name) {
+        const data = store.get(name)
+        store.remove(name)
+        set(name, data)
+      }
+    },
+    cookie: {
+      set (name, data) {
+        set(name, data)
+        cookies.set(name, data)
+      },
+      remove (name) {
+
+      }
     },
     get: () => state,
     location,
@@ -49,6 +73,24 @@ export default ({
 
   const actionInstance = actions(storageContainer)
   state = merge.recursive(true, initialState, actionInstance)
+
+  const localStorageData = {}
+  store.each((value, key) => {
+    localStorageData[key] = value
+  })
+  state = merge.recursive(true, state, localStorageData)
+
+  const cookieData = {}
+  const allCookies = cookies.get()
+  Object.keys(allCookies).forEach(key => {
+    let value = allCookies[key]
+    try {
+      value = JSON.parse(value)
+    } catch (ignoreError) {}
+    cookieData[key] = value
+  })
+  state = merge.recursive(true, state, cookieData)
+
   reduce()
 
   isSet = true
