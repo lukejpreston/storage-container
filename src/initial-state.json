@@ -1,0 +1,15 @@
+{
+    "controls": {
+        "startDisabled": false,
+        "stopDisabled": true,
+        "restartDisabled": true
+    },
+    "format": {
+        "hoursChecked": true,
+        "minutesChecked": true,
+        "secondsChecked": true
+    },
+    "time": {
+        "value": "00:00:00"
+    }
+}
