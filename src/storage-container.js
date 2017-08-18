@@ -1,45 +1,56 @@
+import clone from 'clone'
+import merge from 'merge'
 import createHistory from 'history/createBrowserHistory'
 // import cookies from 'cookies'
 // import store from 'store'
 
-export default ({onChange, initialState, actions, reducer, urls}) => {
+export default ({
+  onChange,
+  initialState,
+  actions,
+  reducer,
+  urls
+}) => {
   let isSet = false
   const history = createHistory()
+  let state = {}
 
-  let state = Object.assign({}, initialState)
-  const storageContainer = {
-    set: (name, data) => {
-      const oldData = Object.assign({}, state)
-      state[name] = state[name] || {}
-      state[name] = Object.assign({}, state[name], data)
-      if (isSet) {
-        const reduced = reducer(storageContainer)
-        console.log(reduced)
-        state = Object.assign({}, state, reduced)
-        onChange(state, oldData)
-      }
-    },
-    get: () => state,
-    location: () => {
-      const location = history.location
-      let pathname = location.pathname.toLowerCase()
-      if (pathname.startsWith('/')) pathname = pathname.replace('/', '')
-      location.pathname = pathname
-      return location
-    },
-    go: pathname => history.push(pathname)
+  const location = () => {
+    const location = history.location
+    let pathname = location.pathname.toLowerCase()
+    if (pathname.startsWith('/')) pathname = pathname.replace('/', '')
+    location.pathname = pathname
+    return location
   }
 
-  const generateActions = actions(storageContainer)
-  Object.keys(generateActions).forEach(key => {
-    state[key] = state[key] || {}
-    state[key] = Object.assign({}, state[key], generateActions[key])
-  })
+  const reduce = () => {
+    const oldState = clone(state)
+    const reduced = reducer(oldState, location()) || {}
+    state = merge.recursive(true, oldState, reduced)
+    if (isSet) onChange(state, oldState)
+  }
 
-  const reduced = reducer(storageContainer)
-  Object.keys(reduced).forEach(key => {
-    storageContainer.set(key, reduced[key])
-  })
+  const go = pathname => {
+    history.push(pathname)
+    reduce()
+  }
+
+  const storageContainer = {
+    set: (name, data) => {
+      const toMerge = {}
+      toMerge[name] = data
+      state = merge.recursive(true, state, toMerge)
+      reduce()
+    },
+    get: () => state,
+    location,
+    go
+  }
+
+  const actionInstance = actions(storageContainer)
+  state = merge.recursive(true, initialState, actionInstance)
+  reduce()
+
   isSet = true
 
   return storageContainer

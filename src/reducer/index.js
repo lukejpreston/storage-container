@@ -1,7 +1,5 @@
-export default (storageContainer) => {
-  const location = storageContainer.location()
+export default (state, location) => {
   const pathname = location.pathname
-  console.log(pathname)
 
   let time = ''
   const hours = '00'

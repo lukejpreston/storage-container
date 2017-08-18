@@ -9,10 +9,12 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
+    "clone": "^2.1.1",
     "cookies": "^0.7.0",
     "eslint-plugin-node": "^5.1.1",
     "eslint-plugin-promise": "^3.5.0",
     "history": "^4.6.3",
+    "merge": "^1.2.0",
     "store": "^2.0.12"
   },
   "devDependencies": {
