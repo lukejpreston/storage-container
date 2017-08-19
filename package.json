@@ -1,7 +1,7 @@
 {
   "name": "storage-contanier",
   "main": "src/storage-container.js",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
